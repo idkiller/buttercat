@@ -14,6 +14,10 @@ namespace buttercat
 
         const string startFileName = "start.png"; // 215 x 100
 
+        const string start2FileName = "start2.png"; // 215 x 100
+
+        const string butterFileName = "butter.png"; // 25 x 12
+
         static Resource()
         {
             var bgImage = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, bgFileName));
@@ -27,11 +31,19 @@ namespace buttercat
 
             var startBitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, startFileName));
             Start = SKImage.FromBitmap(startBitmap);
+
+            var start2Bitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, start2FileName));
+            Start2 = SKImage.FromBitmap(start2Bitmap);
+
+            var butterBitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, butterFileName));
+            Butter = SKImage.FromBitmap(butterBitmap);
         }
 
         public static SKImage Background { get; private set; }
         public static SKImage Start { get; private set; }
+        public static SKImage Start2 { get; private set; }
         public static SKImage CatRuns { get; private set; }
         public static SKImage CatWalk { get; private set; }
+        public static SKImage Butter { get; private set; }
     }
 }

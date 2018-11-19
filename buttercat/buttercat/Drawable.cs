@@ -8,63 +8,88 @@ namespace buttercat
 {
     public abstract class Drawable
     {
-        List<Drawable> children;
-
-        public Drawable()
-        {
-            children = new List<Drawable>();
-        }
+        bool isTouchStarted;
 
         public string Name { get; protected set; }
 
         public abstract SKRect Geometry { get; }
 
-        public List<Drawable> Children => children;
+        public List<Drawable> Children { get; private set; } = new List<Drawable>();
 
         public bool IsClickable { get; set; }
 
+        public bool IsVisible { get; set; } = true;
+        public event EventHandler<TouchEventArgs> Touched;
+
         public event EventHandler Clicked;
 
-        public bool DispatchClicked(int x, int y)
+        public bool DispatchEvent(TouchEventArgs args)
         {
-            bool isCanceled = false;
-            foreach (var child in children)
+            bool isCanceled = args.IsCanceled;
+            foreach (var child in Children)
             {
-                isCanceled = child.DispatchClicked(x, y);
+                child.DispatchEvent(args);
+                isCanceled = isCanceled || args.IsCanceled;
             }
-
             if (IsClickable) return false;
-
             if (isCanceled) return true;
-
-            if (Geometry.Left < x && Geometry.Right > x && Geometry.Top < y && Geometry.Bottom > y)
+            if (Geometry.Left < args.X && Geometry.Right > args.X && Geometry.Top < args.Y && Geometry.Bottom > args.Y)
             {
-                var args = new ClickEventArgs();
-                Clicked?.Invoke(this, args);
+                OnTouch(this, args);
                 return args.IsCanceled;
             }
             return false;
         }
-
-        public void Draw(SKPaintSurfaceEventArgs e, SKRect dirtyArea)
+        public void Draw(DrawEventArgs e, SKRect dirtyArea)
         {
-            if (Geometry.Right <= dirtyArea.Right && Geometry.Right >= dirtyArea.Left && 
-            Geometry.Top <= dirtyArea.Bottom && Geometry.Bottom >= dirtyArea.Top)
+            if (IsVisible && Geometry.Right <= dirtyArea.Right && Geometry.Right >= dirtyArea.Left && 
+                Geometry.Top <= dirtyArea.Bottom && Geometry.Bottom >= dirtyArea.Top)
             {
                 OnDraw(this, e);
-
-                foreach (var drawable in Children)
-                {
-                    drawable.Draw(e, dirtyArea);
-                }
+            }
+            foreach (var drawable in Children)
+            {
+                drawable.Draw(e, dirtyArea);
             }
         }
+        protected abstract void OnDraw(object sender, DrawEventArgs e);
 
-        protected abstract void OnDraw(object sender, SKPaintSurfaceEventArgs e);
+        protected virtual void OnTouch(object sender, TouchEventArgs args)
+        {
+            Touched?.Invoke(sender, args);
+            if (args.State == TouchState.Start)
+            {
+                isTouchStarted = true;
+            }
+            else
+            {
+                if (args.State == TouchState.End && isTouchStarted)
+                {
+                    Clicked?.Invoke(sender, EventArgs.Empty);
+                }
+                isTouchStarted = false;
+            }
+        }
     }
 
-    public class ClickEventArgs : EventArgs
+    public class DrawEventArgs : EventArgs
+    {
+        public SKCanvas Canvas { get; set; }
+    }
+
+    public class TouchEventArgs : EventArgs
     {
         public bool IsCanceled { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public TouchState State { get; set; }
+    }
+
+    public enum TouchState
+    {
+        Start,
+        Move,
+        End,
+        Abort
     }
 }

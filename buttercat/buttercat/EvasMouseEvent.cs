@@ -38,6 +38,37 @@ namespace buttercat
         }
     }
 
+    public class EvasMouseDownArgs : EventArgs
+        {
+            public Point Point { get; set; }
+
+            public static EvasMouseDownArgs Create(IntPtr data, IntPtr obj, IntPtr info)
+            {
+                if (info == IntPtr.Zero)
+                    return null;
+
+                try
+                {
+                    var evt = Marshal.PtrToStructure<Evas_Event_Mouse_Down>(info);
+                    return new EvasMouseDownArgs
+                    {
+                        Point = new Point
+                        {
+                            X = evt.canvas.x,
+                            Y = evt.canvas.y
+                        }
+                    };
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Fail to Mouse Down event info marshalling.");
+                    Console.WriteLine(e);
+                }
+
+                return null;
+            }
+        }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Evas_Event_Mouse_Up
     {
@@ -56,6 +87,25 @@ namespace buttercat
         public double radius_x, radius_y;
         public double pressure, angle;
     }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct Evas_Event_Mouse_Down
+        {
+            public int button;
+            public Evas_Point output;
+            public Evas_Coord_Point canvas;
+            public IntPtr data;
+            public IntPtr modifier;
+            public IntPtr locks;
+            public Evas_Button_Flags flags;
+            public uint timestamp;
+            public Evas_Event_Flags event_flags;
+            public IntPtr dev;
+            public IntPtr event_Src;
+            public double radius;
+            public double radius_x, radius_y;
+            public double pressure, angle;
+        }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Evas_Point

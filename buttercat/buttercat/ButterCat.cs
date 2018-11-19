@@ -1,17 +1,21 @@
 using SkiaSharp.Views.Tizen;
 using SkiaSharp;
+using System;
 
 namespace buttercat
 {
     public class ButterCat : Drawable
     {
         int count;
-        int delay;
 
         bool isRunning;
 
         static SKRect runningRect = new SKRect(140, 290, 140+80, 290+68);
         static SKRect walkingRect = new SKRect(144, 288, 144+72, 288+70);
+
+        float velocity;
+        const float gravity = 0.025f;
+        float accel;
 
         SKRect geometry;
 
@@ -38,18 +42,38 @@ namespace buttercat
             }
         }
 
-        protected override void OnDraw(object sender, SKPaintSurfaceEventArgs args)
-        {
-            var canvas = args.Surface.Canvas;
+        bool isJump;
 
-            if (delay++ > 4)
+        public void Jump()
+        {
+            isJump = true;
+            accel = gravity;
+            velocity = -gravity * 80;
+        }
+
+        protected override void OnDraw(object sender, DrawEventArgs args)
+        {
+            var canvas = args.Canvas;
+            var start = ((int)(count/3) % 6) * geometry.Width;
+
+            if (isJump)
             {
-                delay = 0;
-                count = (count+1) % 6;
+                geometry.Offset(0, (velocity * 16) + (accel * (16 * 16) / 2));
+                velocity = velocity + (accel * 16);
             }
 
-            var start = count * Geometry.Width;
+            if (geometry.Bottom > runningRect.Bottom)
+            {
+                geometry = runningRect;
+                isJump = false;
+            }
+
+            if (geometry.Top < 0)
+            {
+                geometry.Offset(0, -geometry.Top);
+            }
             canvas.DrawImage(IsRunning ? Resource.CatRuns : Resource.CatWalk, new SKRect(start, 0, start + Geometry.Width, Geometry.Height), Geometry);
+            count = count + 1 == 18 ? 0 : count + 1;
         }
     }
 }

@@ -4,15 +4,17 @@ using SkiaSharp.Views.Tizen;
 using System;
 using SkiaSharp;
 using System.Threading;
+using static ElmSharp.GestureLayer;
 
 namespace buttercat
 {
     class App : CoreUIApplication
     {
         AnimatorLoop loop;
-        EvasObjectEvent<EvasMouseUpArgs> mouseUp;
-
         Drawable root;
+
+        GestureLayer gestureLayer;
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -41,12 +43,6 @@ namespace buttercat
 
             view.PaintSurface += OnRender;
 
-            mouseUp = new EvasObjectEvent<EvasMouseUpArgs>(view, EvasObjectCallbackType.MouseUp, EvasMouseUpArgs.Create);
-            mouseUp.On += (s, e) =>
-            {
-                root.DispatchClicked(e.Point.X, e.Point.Y);
-            };
-
             loop = new AnimatorLoop();
             loop.Processed += (s, e) =>
             {
@@ -56,6 +52,21 @@ namespace buttercat
             root = new World((int)(1/loop.FrameTime * 3));
 
             loop.Start();
+
+            gestureLayer = new GestureLayer(conformant);
+            gestureLayer.Attach(view);
+            gestureLayer.SetTapCallback(GestureType.Tap, GestureState.Start, data => {
+                var args = new TouchEventArgs { X = data.X, Y = data.Y, State = TouchState.Start };
+                root.DispatchEvent(args);
+            });
+            gestureLayer.SetTapCallback(GestureType.Tap, GestureState.End, data => {
+                var args = new TouchEventArgs { X = data.X, Y = data.Y, State = TouchState.End };
+                root.DispatchEvent(args);
+            });
+            gestureLayer.SetTapCallback(GestureType.Tap, GestureState.Abort, data => {
+                var args = new TouchEventArgs { X = data.X, Y = data.Y, State = TouchState.Abort };
+                root.DispatchEvent(args);
+            });
         }
 
         void OnRender(object sender, SKPaintSurfaceEventArgs args)
@@ -66,7 +77,7 @@ namespace buttercat
 
             canvas.Clear();
 
-            root.Draw(args, root.Geometry);
+            root.Draw(new DrawEventArgs { Canvas = canvas }, root.Geometry);
         }
 
         static void Main(string[] args)

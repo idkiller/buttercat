@@ -12,7 +12,13 @@ namespace buttercat
 
         int fps;
 
+        bool isStarted;
+
         SKRect geometry = new SKRect(0, 0, 360, 360);
+
+        StartButton startButton;
+        ButterCat butterCat;
+        Butter butter;
 
         public World(int fps)
         {
@@ -20,13 +26,24 @@ namespace buttercat
             clipPath.AddCircle(180, 180, 180);
             this.fps = fps;
 
-            var startButton = new StartButton();
-            var buttercat = new ButterCat();
+            startButton = new StartButton();
+            butterCat = new ButterCat();
+            butter = new Butter();
             Children.Add(startButton);
-            Children.Add(buttercat);
+            Children.Add(butterCat);
+            Children.Add(butter);
 
             startButton.Clicked += (s, e) => {
-                buttercat.IsRunning = true;
+                startButton.IsVisible = false;
+                if (!isStarted)
+                {
+                    butter.Animate().ContinueWith(t => {
+                        butterCat.IsRunning = true;
+                        isStarted = true;
+
+                        Clicked += OnClick;
+                    });
+                }
             };
 
             Name = "World";
@@ -35,11 +52,10 @@ namespace buttercat
         public SKColor SkyColor { get; set; } = SKColors.SkyBlue;
 
         public override SKRect Geometry => geometry;
-        protected override void OnDraw(object sender, SKPaintSurfaceEventArgs args)
+
+        protected override void OnDraw(object sender, DrawEventArgs args)
         {
-            var info = args.Info;
-            var surface = args.Surface;
-            var canvas = surface.Canvas;
+            var canvas = args.Canvas;
 
             canvas.ClipPath(clipPath);
 
@@ -62,6 +78,11 @@ namespace buttercat
                     new SKRect(0, 0, start, Resource.Background.Height),
                     new SKRect(Geometry.Right - start, 0, Geometry.Right, Geometry.Bottom));
             }
+        }
+
+        void OnClick(object sender, EventArgs e)
+        {
+            butterCat.Jump();
         }
     }
 }
