@@ -18,25 +18,27 @@ namespace buttercat
 
         const string butterFileName = "butter.png"; // 25 x 12
 
+        const string pipeFileName = "pipe.png"; // 25 x 25
+
         static Resource()
         {
-            var bgImage = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, bgFileName));
-            Background = SKImage.FromBitmap(bgImage);
+            Background = Load(bgFileName);
+            CatRuns = Load(catrunFileName);
+            CatWalk = Load(catwalkFileName);
+            Start = Load(startFileName);
+            Start2 = Load(start2FileName);
+            Butter = Load(butterFileName);
+            Pipe = Load(pipeFileName);
+        }
 
-            var catrunBitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, catrunFileName));
-            CatRuns = SKImage.FromBitmap(catrunBitmap);
-
-            var catwalkBitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, catwalkFileName));
-            CatWalk = SKImage.FromBitmap(catwalkBitmap);
-
-            var startBitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, startFileName));
-            Start = SKImage.FromBitmap(startBitmap);
-
-            var start2Bitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, start2FileName));
-            Start2 = SKImage.FromBitmap(start2Bitmap);
-
-            var butterBitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, butterFileName));
-            Butter = SKImage.FromBitmap(butterBitmap);
+        static SKImage Load(string fileName, bool flip = false)
+        {
+            var bitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, fileName));
+            if (flip)
+            {
+                
+            }
+            return SKImage.FromBitmap(bitmap);
         }
 
         public static SKImage Background { get; private set; }
@@ -45,5 +47,6 @@ namespace buttercat
         public static SKImage CatRuns { get; private set; }
         public static SKImage CatWalk { get; private set; }
         public static SKImage Butter { get; private set; }
+        public static SKImage Pipe { get; private set; }
     }
 }

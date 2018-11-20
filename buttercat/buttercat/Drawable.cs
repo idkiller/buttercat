@@ -16,7 +16,7 @@ namespace buttercat
 
         public List<Drawable> Children { get; private set; } = new List<Drawable>();
 
-        public bool IsClickable { get; set; }
+        public bool IsClickable { get; set; } = false;
 
         public bool IsVisible { get; set; } = true;
         public event EventHandler<TouchEventArgs> Touched;
@@ -31,7 +31,7 @@ namespace buttercat
                 child.DispatchEvent(args);
                 isCanceled = isCanceled || args.IsCanceled;
             }
-            if (IsClickable) return false;
+            if (!IsVisible || !IsClickable) return false;
             if (isCanceled) return true;
             if (Geometry.Left < args.X && Geometry.Right > args.X && Geometry.Top < args.Y && Geometry.Bottom > args.Y)
             {

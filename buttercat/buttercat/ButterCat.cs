@@ -19,9 +19,13 @@ namespace buttercat
 
         SKRect geometry;
 
+        bool isJump;
+
+        const float timeDifference = 8; 
+
         public ButterCat()
         {
-            geometry = walkingRect;
+            geometry = new SKRect(walkingRect.Left, walkingRect.Top, walkingRect.Right, walkingRect.Bottom);
             Name = "ButterCat";
             isRunning = false;
         }
@@ -37,18 +41,21 @@ namespace buttercat
                 {
                     isRunning = value;
 
-                    geometry = isRunning ? runningRect : walkingRect;
+                    geometry = isRunning ?
+                        new SKRect(runningRect.Left, runningRect.Top, runningRect.Right, runningRect.Bottom) :
+                        new SKRect(walkingRect.Left, walkingRect.Top, walkingRect.Right, walkingRect.Bottom) ;
+
+                        Console.WriteLine(geometry);
+                                
                 }
             }
         }
-
-        bool isJump;
 
         public void Jump()
         {
             isJump = true;
             accel = gravity;
-            velocity = -gravity * 80;
+            velocity = -gravity * 60;
         }
 
         protected override void OnDraw(object sender, DrawEventArgs args)
@@ -56,23 +63,26 @@ namespace buttercat
             var canvas = args.Canvas;
             var start = ((int)(count/3) % 6) * geometry.Width;
 
-            if (isJump)
+            if (isRunning)
             {
-                geometry.Offset(0, (velocity * 16) + (accel * (16 * 16) / 2));
-                velocity = velocity + (accel * 16);
-            }
+                if (isJump)
+                {
+                    geometry.Offset(0, (velocity * timeDifference) + (accel * (timeDifference * timeDifference) / 2));
+                    velocity = velocity + (accel * timeDifference);
+                }
 
-            if (geometry.Bottom > runningRect.Bottom)
-            {
-                geometry = runningRect;
-                isJump = false;
-            }
+                if (geometry.Bottom > runningRect.Bottom)
+                {
+                    geometry = runningRect;
+                    isJump = false;
+                }
 
-            if (geometry.Top < 0)
-            {
-                geometry.Offset(0, -geometry.Top);
+                if (geometry.Top < 0)
+                {
+                    geometry.Offset(0, -geometry.Top);
+                }
             }
-            canvas.DrawImage(IsRunning ? Resource.CatRuns : Resource.CatWalk, new SKRect(start, 0, start + Geometry.Width, Geometry.Height), Geometry);
+            canvas.DrawImage(IsRunning ? Resource.CatRuns : Resource.CatWalk, new SKRect(start, 0, start + geometry.Width, geometry.Height), geometry);
             count = count + 1 == 18 ? 0 : count + 1;
         }
     }

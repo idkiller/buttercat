@@ -1,6 +1,7 @@
 using SkiaSharp.Views.Tizen;
 using SkiaSharp;
 using System;
+using System.Collections.Generic;
 
 namespace buttercat
 {
@@ -19,14 +20,25 @@ namespace buttercat
         StartButton startButton;
         ButterCat butterCat;
         Butter butter;
+        Random random;
+
+        List<Pipe> pipes = new List<Pipe>();
+
+        float lastPipeTime;
 
         public World(int fps)
         {
+            Name = "World";
+
             clipPath = new SKPath();
             clipPath.AddCircle(180, 180, 180);
             this.fps = fps;
 
-            startButton = new StartButton();
+            IsClickable = true;
+            startButton = new StartButton()
+            {
+                IsClickable = true
+            };
             butterCat = new ButterCat();
             butter = new Butter();
             Children.Add(startButton);
@@ -37,16 +49,11 @@ namespace buttercat
                 startButton.IsVisible = false;
                 if (!isStarted)
                 {
-                    butter.Animate().ContinueWith(t => {
-                        butterCat.IsRunning = true;
-                        isStarted = true;
-
-                        Clicked += OnClick;
-                    });
+                    butter.Animate().ContinueWith(t => StartGame());
                 }
             };
 
-            Name = "World";
+            random = new Random();
         }
 
         public SKColor SkyColor { get; set; } = SKColors.SkyBlue;
@@ -78,11 +85,69 @@ namespace buttercat
                     new SKRect(0, 0, start, Resource.Background.Height),
                     new SKRect(Geometry.Right - start, 0, Geometry.Right, Geometry.Bottom));
             }
+
+            if (isStarted)
+            {
+                foreach (var child in pipes.ToArray())
+                {
+                    child.Move(-1);
+                    if (child.Geometry.Right <= 0)
+                    {
+                        Children.Remove(child);   
+                        pipes.Remove(child);
+                    }
+
+                    if (child.Geometry.Left < butterCat.Geometry.Right &&
+                        child.Geometry.Right > butterCat.Geometry.Left &&
+                        child.Geometry.Top < butterCat.Geometry.Bottom &&
+                        child.Geometry.Bottom > butterCat.Geometry.Top)
+                    {
+                        EndGame();
+                    }
+                }
+
+                int r;
+                if (lastPipeTime++ > 55 && (r = random.Next(0, 101)) % 30 < 5)
+                {
+                    var pipe = new Pipe(random.Next(50, 120), r > 30);
+                    pipes.Add(pipe);
+                    Children.Add(pipe);
+
+                    if (r > 60)
+                    {
+                        var pipe2 = new Pipe(random.Next(50, 120), false);
+                        pipes.Add(pipe2);
+                        Children.Add(pipe2);
+                    }
+                    lastPipeTime = 0;
+                }
+            }
         }
 
         void OnClick(object sender, EventArgs e)
         {
             butterCat.Jump();
+        }
+
+        void StartGame()
+        {
+            butterCat.IsRunning = true;
+            isStarted = true;
+            Clicked += OnClick;
+        }
+
+        void EndGame()
+        {
+            butterCat.IsRunning = false;
+            isStarted = false;
+            Clicked -= OnClick;
+            startButton.IsVisible = true;
+
+            foreach (var pipe in pipes.ToArray())
+            {
+                pipes.Remove(pipe);
+                Children.Remove(pipe);
+            }
         }
     }
 }
