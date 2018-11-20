@@ -96,11 +96,17 @@ namespace buttercat
                         Children.Remove(child);   
                         pipes.Remove(child);
                     }
-
+                    
+                    /*
                     if (child.Geometry.Left < butterCat.Geometry.Right &&
                         child.Geometry.Right > butterCat.Geometry.Left &&
                         child.Geometry.Top < butterCat.Geometry.Bottom &&
                         child.Geometry.Bottom > butterCat.Geometry.Top)
+                    {
+                        EndGame();
+                    }
+                    */
+                    if (child.Geometry.IntersectsWith(butterCat.Geometry))
                     {
                         EndGame();
                     }
