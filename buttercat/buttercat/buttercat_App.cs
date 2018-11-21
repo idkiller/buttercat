@@ -67,6 +67,8 @@ namespace buttercat
                 var args = new TouchEventArgs { X = data.X, Y = data.Y, State = TouchState.Abort };
                 root.DispatchEvent(args);
             });
+
+            Drawable.DebugSquare = true;
         }
 
         void OnRender(object sender, SKPaintSurfaceEventArgs args)

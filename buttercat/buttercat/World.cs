@@ -2,6 +2,7 @@ using SkiaSharp.Views.Tizen;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace buttercat
 {
@@ -115,7 +116,7 @@ namespace buttercat
                 int r;
                 if (lastPipeTime++ > 55 && (r = random.Next(0, 101)) % 30 < 5)
                 {
-                    var pipe = new Pipe(random.Next(50, 120), r > 30);
+                    var pipe = new Pipe(random.Next(50, 100), r > 30);
                     pipes.Add(pipe);
                     Children.Add(pipe);
 
@@ -137,23 +138,26 @@ namespace buttercat
 
         void StartGame()
         {
-            butterCat.IsRunning = true;
+            butterCat.State = CatState.Running;
             isStarted = true;
             Clicked += OnClick;
         }
 
         void EndGame()
         {
-            butterCat.IsRunning = false;
             isStarted = false;
             Clicked -= OnClick;
-            startButton.IsVisible = true;
-
-            foreach (var pipe in pipes.ToArray())
+            butterCat.Surprise().ContinueWith(t =>
             {
-                pipes.Remove(pipe);
-                Children.Remove(pipe);
-            }
+                startButton.IsVisible = true;
+
+                foreach (var pipe in pipes.ToArray())
+                {
+                    pipes.Remove(pipe);
+                    Children.Remove(pipe);
+                }
+                butterCat.State = CatState.Walking;
+            });
         }
     }
 }

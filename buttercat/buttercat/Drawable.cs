@@ -3,12 +3,18 @@ using SkiaSharp;
 using SkiaSharp.Views.Tizen;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace buttercat
 {
     public abstract class Drawable
     {
+        public static bool DebugSquare = false;
         bool isTouchStarted;
+
+        public event EventHandler Tick;
+
+        public int ZOrder { get; set; }
 
         public string Name { get; protected set; }
 
@@ -42,12 +48,22 @@ namespace buttercat
         }
         public void Draw(DrawEventArgs e, SKRect dirtyArea)
         {
+            Tick?.Invoke(this, EventArgs.Empty);
             if (IsVisible && Geometry.Right <= dirtyArea.Right && Geometry.Right >= dirtyArea.Left && 
                 Geometry.Top <= dirtyArea.Bottom && Geometry.Bottom >= dirtyArea.Top)
             {
                 OnDraw(this, e);
+                if (DebugSquare)
+                {
+                    using (var paint = new SKPaint())
+                    {
+                        paint.Style = SKPaintStyle.Stroke;
+                        paint.Color = SKColors.Red;
+                        e.Canvas.DrawRect(Geometry, paint);
+                    }
+                }
             }
-            foreach (var drawable in Children)
+            foreach (var drawable in Children.OrderBy(d=>d.ZOrder))
             {
                 drawable.Draw(e, dirtyArea);
             }

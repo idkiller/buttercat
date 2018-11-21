@@ -28,16 +28,33 @@ namespace buttercat
             Start = Load(startFileName);
             Start2 = Load(start2FileName);
             Butter = Load(butterFileName);
-            Pipe = Load(pipeFileName);
+
+            var pipeBitmap = LoadBitmap(pipeFileName);
+            Pipe = SKImage.FromBitmap(pipeBitmap);
+            var pipeReverse = FlipBitmap(pipeBitmap);
+            PipeReverse = SKImage.FromBitmap(pipeReverse);
         }
 
-        static SKImage Load(string fileName, bool flip = false)
+        static SKBitmap LoadBitmap(string fileName)
         {
-            var bitmap = SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, fileName));
-            if (flip)
+            return SKBitmap.Decode(Path.Combine(Application.Current.DirectoryInfo.Resource, fileName));
+        }
+
+        static SKBitmap FlipBitmap(SKBitmap bitmap)
+        {
+            var flipped = new SKBitmap(bitmap.Width, bitmap.Height);
+            using (SKCanvas canvas = new SKCanvas(flipped))
             {
-                
+                canvas.Clear();
+                canvas.Scale(1, -1, 0, bitmap.Width / 2);
+                canvas.DrawBitmap(bitmap, new SKPoint());
             }
+            return flipped;
+        }
+
+        static SKImage Load(string fileName)
+        {
+            var bitmap = LoadBitmap(fileName);
             return SKImage.FromBitmap(bitmap);
         }
 
@@ -48,5 +65,6 @@ namespace buttercat
         public static SKImage CatWalk { get; private set; }
         public static SKImage Butter { get; private set; }
         public static SKImage Pipe { get; private set; }
+        public static SKImage PipeReverse { get; private set; }
     }
 }
