@@ -68,7 +68,7 @@ namespace buttercat
                 root.DispatchEvent(args);
             });
 
-            Drawable.DebugSquare = true;
+            //Drawable.DebugSquare = true;
         }
 
         void OnRender(object sender, SKPaintSurfaceEventArgs args)

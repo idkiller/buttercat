@@ -1,7 +1,6 @@
 using Tizen.Applications;
 using SkiaSharp;
 using System.IO;
-using System;
 
 namespace buttercat
 {
@@ -20,6 +19,8 @@ namespace buttercat
 
         const string pipeFileName = "pipe.png"; // 25 x 25
 
+        const string numbersFileName = "numbers.png"; // 46x59 * 11 in 506x59 kerning 16
+
         static Resource()
         {
             Background = Load(bgFileName);
@@ -33,6 +34,7 @@ namespace buttercat
             Pipe = SKImage.FromBitmap(pipeBitmap);
             var pipeReverse = FlipBitmap(pipeBitmap);
             PipeReverse = SKImage.FromBitmap(pipeReverse);
+            Numbers = Load(numbersFileName);
         }
 
         static SKBitmap LoadBitmap(string fileName)
@@ -66,5 +68,6 @@ namespace buttercat
         public static SKImage Butter { get; private set; }
         public static SKImage Pipe { get; private set; }
         public static SKImage PipeReverse { get; private set; }
+        public static SKImage Numbers { get; private set; }
     }
 }

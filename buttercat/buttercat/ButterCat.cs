@@ -23,7 +23,7 @@ namespace buttercat
         CatState state;
         TaskCompletionSource<bool> surprisingDone;
 
-        public ButterCat()
+        public ButterCat(Drawable parent) : base(parent)
         {
             Name = "ButterCat";
             SetState(CatState.Walking);

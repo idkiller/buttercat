@@ -12,7 +12,7 @@ namespace buttercat
         static SKRect reverseStartGeometry = new SKRect(360, 0, 360 + 25, 25);
         static SKRect startGeometry = new SKRect(360, 360 - 25, 360 + 25, 360);
 
-        public Pipe(int height, bool reverse = false)
+        public Pipe(Drawable parent, int height, bool reverse = false): base(parent)
         {
             geometry = reverse ? reverseStartGeometry : startGeometry;
             this.reverse = reverse;

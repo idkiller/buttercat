@@ -12,6 +12,23 @@ namespace buttercat
         public static bool DebugSquare = false;
         bool isTouchStarted;
 
+        Drawable parent;
+
+        // known problem : there are no method to remove this from parent without using Children directly
+        public Drawable Parent
+        {
+            get => parent;
+            set
+            {
+                if (parent != value)
+                {
+                    parent?.Children?.Remove(this);
+                    parent = value;
+                    parent?.Children?.Add(this);
+                }
+            }
+        }
+
         public event EventHandler Tick;
 
         public int ZOrder { get; set; }
@@ -28,6 +45,11 @@ namespace buttercat
         public event EventHandler<TouchEventArgs> Touched;
 
         public event EventHandler Clicked;
+
+        public Drawable(Drawable parent)
+        {
+            Parent = parent;
+        }
 
         public bool DispatchEvent(TouchEventArgs args)
         {

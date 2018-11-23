@@ -21,13 +21,14 @@ namespace buttercat
         StartButton startButton;
         ButterCat butterCat;
         Butter butter;
+        DistanceLabel distance;
         Random random;
 
         List<Pipe> pipes = new List<Pipe>();
 
         float lastPipeTime;
 
-        public World(int fps)
+        public World(int fps) : base(null)
         {
             Name = "World";
 
@@ -36,15 +37,12 @@ namespace buttercat
             this.fps = fps;
 
             IsClickable = true;
-            startButton = new StartButton()
+            startButton = new StartButton(this)
             {
                 IsClickable = true
             };
-            butterCat = new ButterCat();
-            butter = new Butter();
-            Children.Add(startButton);
-            Children.Add(butterCat);
-            Children.Add(butter);
+            butterCat = new ButterCat(this);
+            butter = new Butter(this);
 
             startButton.Clicked += (s, e) => {
                 startButton.IsVisible = false;
@@ -55,6 +53,12 @@ namespace buttercat
             };
 
             random = new Random();
+
+            distance = new DistanceLabel(this)
+            {
+                IsVisible = false,
+                ZOrder = 1
+            };
         }
 
         public SKColor SkyColor { get; set; } = SKColors.SkyBlue;
@@ -114,17 +118,19 @@ namespace buttercat
                 }
 
                 int r;
-                if (lastPipeTime++ > 55 && (r = random.Next(0, 101)) % 30 < 5)
+                if (lastPipeTime++ > 80)
                 {
-                    var pipe = new Pipe(random.Next(50, 100), r > 30);
-                    pipes.Add(pipe);
-                    Children.Add(pipe);
-
-                    if (r > 60)
+                    distance.Distance++;
+                    if ((r = random.Next(0, 101)) % 30 < 5)
                     {
-                        var pipe2 = new Pipe(random.Next(50, 120), false);
-                        pipes.Add(pipe2);
-                        Children.Add(pipe2);
+                        var pipe = new Pipe(this, random.Next(50, 80), r > 30);
+                        pipes.Add(pipe);
+
+                        if (r > 60)
+                        {
+                            var pipe2 = new Pipe(this, random.Next(50, 120), false);
+                            pipes.Add(pipe2);
+                        }
                     }
                     lastPipeTime = 0;
                 }
@@ -141,6 +147,7 @@ namespace buttercat
             butterCat.State = CatState.Running;
             isStarted = true;
             Clicked += OnClick;
+            distance.IsVisible = true;
         }
 
         void EndGame()
@@ -158,6 +165,8 @@ namespace buttercat
                 }
                 butterCat.State = CatState.Walking;
             });
+            distance.Distance = 0;
+            //distance.IsVisible = false;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace buttercat
 
         TaskCompletionSource<bool> tcs;
 
-        public Butter()
+        public Butter(Drawable parent) : base(parent)
         {
             IsVisible = false;
         }

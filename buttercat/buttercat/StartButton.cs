@@ -9,7 +9,7 @@ namespace buttercat
         SKRect geometry = new SKRect(72, 100, 93 + 215, 200);
 
         SKImage image;
-        public StartButton()
+        public StartButton(Drawable parent) : base(parent)
         {
             image = Resource.Start;
         }
